@@ -1,0 +1,49 @@
+= Altered States
+
+Altered States is a plugin which makes it easy to attach multiple AlterEgo 
+state machines to an ActiveRecord class, which each persisted independently.
+
+Multiple machines allow you to easily separate out concerns, for example a User's status (confirmed, banned, etc) and their role (punter, admin).
+
+For ease of use Altered States delegates any instance methods you define in your state machine and all the request handlers you set up with AlterEgo
+
+In your model
+
+  class User < ActiveRecord::Base
+    include AlteredStates
+    
+    map_state_machine User::Role, :role
+    map_state_machine User::Status, :status
+  end
+  
+And one of the machines
+
+  class User::Role
+    include AlterEgo
+    include AlteredStates::StateBox # it's important this comes after the AlterEgo import
+    
+    def all_role_method(some_param)
+      ...
+    end
+    
+    state :staff do
+      transition :to => :admin, :on => :make_admin!
+      transition :to => :punter, :on => :make_punter!
+      
+      handle(:staff?) { true }
+      handle(:admin?) { false }
+      handle :role_dependent_method do
+        :staff_thing
+      end
+    end
+  end
+
+Then, with an instance:
+
+  >> that_user = User.new
+  => #<User id:nil, role:nil, status:nil>
+  >> that_user.all_role_method('the param')
+  the param
+  => nil
+  
+That's it really.
