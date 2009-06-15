@@ -39,6 +39,12 @@ describe AlteredStates::StateBox do
         
         @state_marker.state.should == :default
       end
+      
+      it "should serialize itself to JSON in a sensible way - just the state id" do
+        @mock_state_holder.expects(:read_attribute).with(:column_name).returns('state_id')
+        
+        @state_marker.to_json.should == 'state_id'
+      end
     end
   end
 end

@@ -16,5 +16,9 @@ module AlteredStates
     def state=(identifier)
       state_holder.update_attribute(state_marker, identifier.to_s)
     end
+    
+    def to_json(opts = {})
+      state_holder.read_attribute(state_marker).to_json(opts)
+    end
   end
 end
